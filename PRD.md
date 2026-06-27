@@ -82,8 +82,12 @@ next week instead of generating resolutions I forget.*
 **US-4 — Survive the worst day.**
 *I want a sub-30s "minimum viable day" (keystone + did-I-protect-it) and a non-scolding
 re-entry after skipping, so the tool is useful exactly when I'm slammed.*
-- AC1: A minimum path requires only keystone + protected-binary.
-- AC2: Returning after missed days opens with diagnosis, never a guilt/streak-broken message.
+- AC1: A minimum path requires only keystone + protected-binary, and the UI affirms that
+  minimum is a legitimate entry (not a cop-out).
+- AC2: Returning after missed days opens with **diagnosis, never a guilt/streak-broken
+  message** — implemented as the *absence* of any inactivity/streak banner: the deck opens
+  to today (silence at top) and the self-record strip below is the diagnosis. A day-counter
+  banner was deliberately rejected (it re-imports loss-aversion; see ADR-0014).
 
 **US-5 — Keep my data, and keep it mine.**
 *I want one-tap export and a local-only store, so a cleared cache can't destroy my ledger

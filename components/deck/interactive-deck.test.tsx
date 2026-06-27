@@ -3,7 +3,8 @@ import { describe, it, expect, beforeEach } from "vitest";
 import { render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { InteractiveDeck } from "./interactive-deck";
-import { STORAGE_KEY, BACKUP_KEY } from "@/lib/repository";
+import { STORAGE_KEY, BACKUP_KEY, emptyState, serialize } from "@/lib/repository";
+import { toISODate } from "@/lib/date";
 
 const KEYSTONE_PLACEHOLDER = "What is the one thing that defines today?";
 
@@ -74,6 +75,29 @@ describe("InteractiveDeck", () => {
         '"keystoneProtected":true',
       );
     });
+  });
+
+  it("keeps a saved leverage kind selectable after it is disabled in preferences", async () => {
+    const today = toISODate(new Date());
+    const s = emptyState();
+    s.preferences.leveragePrompts = ["irreversible_decision"]; // reusable_ip disabled
+    s.entries[today] = {
+      date: today,
+      keystone: "K",
+      notDoing: "",
+      priorities: [],
+      leverage: { kind: "reusable_ip" }, // saved earlier, now not in prompts
+    };
+    window.localStorage.setItem(STORAGE_KEY, serialize(s));
+
+    render(<InteractiveDeck />);
+    await screen.findByPlaceholderText(KEYSTONE_PLACEHOLDER);
+
+    const select = screen.getByRole("combobox") as HTMLSelectElement;
+    expect(select.value).toBe("reusable_ip"); // not orphaned to blank
+    expect(
+      screen.getByRole("option", { name: "Reusable IP captured" }),
+    ).toBeInTheDocument();
   });
 
   it("shows the minimum-viable-day note until a priority is added", async () => {

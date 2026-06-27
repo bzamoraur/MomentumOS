@@ -217,3 +217,22 @@ streak/guilt UI is the feature.
 **Consequences.** Re-entry needs no new UI; the strip does the work. Tone risk avoided.
 A future inactivity cue, if ever justified, must clear the same bar this banner failed.
 **Source.** `product-critic` subagent on the PR5b re-entry design.
+
+## ADR-0015 — Preferences UI: editable labeled defaults (PR4, closes US-6)
+**Context.** ADR-0010 committed that every opinionated default is an editable, labeled
+preference. PR4 implements the UI.
+**Decision.** A `/settings` page edits `Preferences` via a pure `setPreferences` + invisible
+autosave (consistent with ADR-0011): priority cap (clamped 1–5), week start (mon/sun), and
+which leverage prompts appear. The deck's leverage select now reads
+`preferences.leveragePrompts` (the preference has teeth), keeping the current entry's kind
+selectable even if later toggled off so a saved value is never orphaned. Each control is
+labeled as a stance, not science.
+- **Edge — week start is future-only.** Commitments/reviews store an explicit `weekOf`;
+  changing `weekStartsOn` shifts how *future* weeks are computed and does not rewrite past
+  records. Surfaced in the settings copy.
+- **Edge — lowering the cap is non-destructive.** It blocks *adding* beyond the new cap but
+  never deletes existing priorities (no surprise data loss).
+**Status.** Accepted (PR4). With this, the MVP's user stories US-1…US-6 are covered.
+**Consequences.** The "honesty" positioning is now real, not asserted — the analyst can see
+and change the stances. Onboarding nudge (in-app) remains optional polish (PR5c).
+**Source.** Implements ADR-0010; owner directive to finish the MVP.

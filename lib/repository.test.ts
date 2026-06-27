@@ -9,6 +9,7 @@ import {
   entriesAscending,
   setCommitment,
   closeWeek,
+  setPreferences,
   createInMemoryRepository,
   createLocalStorageRepository,
   type MomentumState,
@@ -138,6 +139,20 @@ describe("createLocalStorageRepository", () => {
   it("returns { ok: false } when the store rejects a write (quota/private mode)", () => {
     const repo = createLocalStorageRepository(fakeStorage({ throwOnSet: true }));
     expect(repo.save(emptyState())).toEqual({ ok: false });
+  });
+});
+
+describe("setPreferences", () => {
+  it("replaces preferences immutably", () => {
+    const s = emptyState();
+    const next = setPreferences(s, {
+      maxPriorities: 2,
+      weekStartsOn: "sunday",
+      leveragePrompts: [],
+    });
+    expect(next.preferences.maxPriorities).toBe(2);
+    expect(next.preferences.weekStartsOn).toBe("sunday");
+    expect(s.preferences.maxPriorities).toBe(3); // original unchanged
   });
 });
 

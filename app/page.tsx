@@ -17,6 +17,12 @@ export default function Page() {
               Weekly review
             </Link>
             <Link
+              href="/settings"
+              className="text-xs text-muted-foreground underline underline-offset-4 hover:text-foreground"
+            >
+              Settings
+            </Link>
+            <Link
               href="/preview"
               className="text-xs text-muted-foreground underline underline-offset-4 hover:text-foreground"
             >

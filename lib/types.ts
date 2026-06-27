@@ -84,3 +84,10 @@ export const LEVERAGE_LABELS: Record<LeverageKind, string> = {
   senior_time_on_junior_work: "Senior time spent on junior work?",
   reusable_ip: "Reusable IP captured",
 };
+
+/** Canonical order of leverage prompts — single source of truth across surfaces. */
+export const LEVERAGE_KINDS: LeverageKind[] = [
+  "irreversible_decision",
+  "senior_time_on_junior_work",
+  "reusable_ip",
+];

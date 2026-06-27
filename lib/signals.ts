@@ -21,6 +21,24 @@ export function lastN<T>(items: readonly T[], n: number): T[] {
 const norm = (s: string | undefined): string => (s ?? "").trim().toLowerCase();
 const hasText = (s: string | undefined): boolean => norm(s).length > 0;
 
+/**
+ * Whether a day carries a real decision. Used to keep blank, unpersisted working
+ * entries (the deck seeds an empty entry for "today" on mount) out of the record
+ * and the signals. A lone keystone-protected toggle with no keystone is a stray
+ * tap, not an entry — so it does NOT count.
+ */
+export function isMeaningfulEntry(e: DailyEntry): boolean {
+  return (
+    hasText(e.keystone) ||
+    e.priorities.length > 0 ||
+    hasText(e.notDoing) ||
+    hasText(e.compoundingAction) ||
+    e.leverage !== undefined ||
+    e.energy !== undefined ||
+    hasText(e.note)
+  );
+}
+
 export interface KeystoneProtection {
   /** Days the keystone was protected. */
   protected: number;

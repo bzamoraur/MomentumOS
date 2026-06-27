@@ -75,4 +75,17 @@ describe("InteractiveDeck", () => {
       );
     });
   });
+
+  it("shows the minimum-viable-day note until a priority is added", async () => {
+    const user = userEvent.setup();
+    render(<InteractiveDeck />);
+    await screen.findByPlaceholderText(KEYSTONE_PLACEHOLDER);
+
+    expect(screen.getByText(/Minimum: a keystone/)).toBeInTheDocument();
+
+    await user.type(screen.getByPlaceholderText("Add a priority"), "First");
+    await user.click(screen.getByRole("button", { name: "Add" }));
+
+    expect(screen.queryByText(/Minimum: a keystone/)).toBeNull();
+  });
 });

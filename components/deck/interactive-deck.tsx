@@ -174,6 +174,11 @@ export function InteractiveDeck() {
               Not protected
             </Toggle>
           </div>
+          {todayEntry.priorities.length === 0 ? (
+            <p className="text-xs text-muted-foreground">
+              Minimum: a keystone and the end-of-day check. That&apos;s a real entry.
+            </p>
+          ) : null}
         </CardContent>
       </Card>
 

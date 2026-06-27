@@ -196,3 +196,24 @@ graceful-re-entry path remain PR5b.
 the gate is build + lint (no unit tests to add). Local-first and no-tracking posture is
 unchanged (SECURITY_AND_PRIVACY).
 **Source.** Owner confirmed the app runs well on device; adherence is the binding constraint.
+
+## ADR-0014 — Graceful re-entry is silence + the strip, not a banner (PR5b)
+**Context.** US-4 AC2 asks that returning after missed days "opens with diagnosis, never a
+guilt/streak-broken message." The obvious build — an inactivity banner counting days-since
+— was attacked by the `product-critic`.
+**Decision.** **Do not build a re-entry banner.** A top-of-deck day-counter keyed to
+inactivity structurally re-imports the streak/loss-aversion and arbitrary-threshold-as-
+judgment dynamics the product cut (ADR-0002, principle 4); "there's no streak to rebuild"
+makes it worse by naming the streak. The strongest "diagnosis, not judgment" design is
+**silence at the top** (the deck opens to today) **plus the existing self-record strip**
+below, which already states honest, proportional facts the user trusts. The absence of any
+streak/guilt UI is the feature.
+- **Ship instead:** `isMeaningfulEntry(entry)` (pure) so a blank, unpersisted "today" entry
+  no longer skews the strip's facts; and a minimum-viable-day affordance near the keystone
+  ("Minimum: a keystone and the end-of-day check. That's a real entry.") serving US-4 AC1.
+- **Declined:** `daysSinceLastEntry` — its only consumer was the banner; adding unused code
+  violates "every feature earns its place."
+**Status.** Accepted (PR5b).
+**Consequences.** Re-entry needs no new UI; the strip does the work. Tone risk avoided.
+A future inactivity cue, if ever justified, must clear the same bar this banner failed.
+**Source.** `product-critic` subagent on the PR5b re-entry design.

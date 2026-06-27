@@ -2,6 +2,7 @@ import { describe, it, expect } from "vitest";
 import type { DailyEntry, Priority } from "./types";
 import {
   lastN,
+  isMeaningfulEntry,
   keystoneProtection,
   topPrioritySlip,
   tradeOffNamingRate,
@@ -37,6 +38,32 @@ describe("lastN", () => {
     expect(lastN([1, 2], 5)).toEqual([1, 2]);
     expect(lastN([1, 2], 0)).toEqual([]);
     expect(lastN([], 3)).toEqual([]);
+  });
+});
+
+// --- isMeaningfulEntry ------------------------------------------------------
+
+describe("isMeaningfulEntry", () => {
+  it("is false for a blank entry", () => {
+    expect(isMeaningfulEntry(day("d", { keystone: "" }))).toBe(false);
+  });
+
+  it("is true once a keystone is set", () => {
+    expect(isMeaningfulEntry(day("d", { keystone: "Ship the deck" }))).toBe(true);
+  });
+
+  it("is true for any priority/trade-off/compounding/leverage/energy/note", () => {
+    expect(isMeaningfulEntry(day("d", { keystone: "", priorities: [pri("a")] }))).toBe(true);
+    expect(isMeaningfulEntry(day("d", { keystone: "", notDoing: "Declining a call" }))).toBe(true);
+    expect(isMeaningfulEntry(day("d", { keystone: "", compoundingAction: "Read 20 pages" }))).toBe(true);
+    expect(isMeaningfulEntry(day("d", { keystone: "", leverage: { kind: "reusable_ip" } }))).toBe(true);
+    expect(isMeaningfulEntry(day("d", { keystone: "", energy: 3 }))).toBe(true);
+    expect(isMeaningfulEntry(day("d", { keystone: "", note: "context" }))).toBe(true);
+  });
+
+  it("is false for a stray keystone-protected toggle with no keystone", () => {
+    expect(isMeaningfulEntry(day("d", { keystone: "", keystoneProtected: false }))).toBe(false);
+    expect(isMeaningfulEntry(day("d", { keystone: "", keystoneProtected: true }))).toBe(false);
   });
 });
 

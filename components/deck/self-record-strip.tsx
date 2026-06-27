@@ -1,5 +1,6 @@
 import type { DailyEntry } from "@/lib/types";
 import {
+  isMeaningfulEntry,
   keystoneProtection,
   topPrioritySlip,
   tradeOffNamingRate,
@@ -29,12 +30,15 @@ export function SelfRecordStrip({
   /** Override the descriptive line (e.g. to name the week being closed). */
   note?: string;
 }) {
-  const ks = keystoneProtection(entries, WINDOW);
-  const slip = topPrioritySlip(entries);
-  const naming = tradeOffNamingRate(entries, WINDOW);
-  const neglect = compoundingNeglectDays(entries);
-  const pvc = plannedVsCompleted(entries, WINDOW);
-  const thin = entries.length <= 1;
+  // Only real decisions count — a blank, unpersisted "today" entry must not skew
+  // the record (see lib/signals.ts isMeaningfulEntry, ADR-0014).
+  const meaningful = entries.filter(isMeaningfulEntry);
+  const ks = keystoneProtection(meaningful, WINDOW);
+  const slip = topPrioritySlip(meaningful);
+  const naming = tradeOffNamingRate(meaningful, WINDOW);
+  const neglect = compoundingNeglectDays(meaningful);
+  const pvc = plannedVsCompleted(meaningful, WINDOW);
+  const thin = meaningful.length <= 1;
 
   const facts: { label: string; value: string }[] = [
     {

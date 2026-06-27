@@ -20,12 +20,6 @@ import { Input } from "@/components/ui/input";
 import { SelfRecordStrip } from "@/components/deck/self-record-strip";
 import { ExportButtons } from "@/components/deck/export-buttons";
 
-const LEVERAGE_KINDS: LeverageKind[] = [
-  "irreversible_decision",
-  "senior_time_on_junior_work",
-  "reusable_ip",
-];
-
 function blankEntry(date: string): DailyEntry {
   return { date, keystone: "", notDoing: "", priorities: [] };
 }
@@ -265,7 +259,11 @@ export function InteractiveDeck() {
               className="h-9 rounded-md border border-border bg-background px-3 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
             >
               <option value="">—</option>
-              {LEVERAGE_KINDS.map((k) => (
+              {(todayEntry.leverage &&
+              !state.preferences.leveragePrompts.includes(todayEntry.leverage.kind)
+                ? [...state.preferences.leveragePrompts, todayEntry.leverage.kind]
+                : state.preferences.leveragePrompts
+              ).map((k) => (
                 <option key={k} value={k}>
                   {LEVERAGE_LABELS[k]}
                 </option>

@@ -16,6 +16,7 @@ import type {
   WeeklyReview,
   Preferences,
 } from "./types";
+import { LEVERAGE_KINDS } from "./types";
 import { daysBetween } from "./date";
 
 export const SCHEMA_VERSION = 2;
@@ -25,11 +26,7 @@ export const BACKUP_KEY = "momentum-os:v1:corrupt-backup";
 export const DEFAULT_PREFERENCES: Preferences = {
   maxPriorities: 3,
   weekStartsOn: "monday",
-  leveragePrompts: [
-    "irreversible_decision",
-    "senior_time_on_junior_work",
-    "reusable_ip",
-  ],
+  leveragePrompts: [...LEVERAGE_KINDS],
 };
 
 export interface MomentumState {
@@ -177,6 +174,14 @@ export function closeWeek(
     );
   }
   return { ...state, reviews: [...state.reviews, review] };
+}
+
+/** Replace the editable preferences (the labeled defaults — ADR-0010). */
+export function setPreferences(
+  state: MomentumState,
+  preferences: Preferences,
+): MomentumState {
+  return { ...state, preferences };
 }
 
 export interface MomentumRepository {

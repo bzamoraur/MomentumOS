@@ -9,12 +9,20 @@ export default function Page() {
           <span className="text-xs font-semibold uppercase tracking-[0.2em] text-muted-foreground">
             Momentum OS
           </span>
-          <Link
-            href="/preview"
-            className="text-xs text-muted-foreground underline underline-offset-4 hover:text-foreground"
-          >
-            See a sample week
-          </Link>
+          <div className="flex items-center gap-4">
+            <Link
+              href="/review"
+              className="text-xs text-muted-foreground underline underline-offset-4 hover:text-foreground"
+            >
+              Weekly review
+            </Link>
+            <Link
+              href="/preview"
+              className="text-xs text-muted-foreground underline underline-offset-4 hover:text-foreground"
+            >
+              Sample
+            </Link>
+          </div>
         </div>
         <h1 className="text-2xl font-semibold tracking-tight">Today</h1>
         <p className="text-sm leading-relaxed text-muted-foreground">

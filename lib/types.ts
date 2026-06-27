@@ -45,13 +45,29 @@ export interface DailyEntry {
   note?: string;
 }
 
+export type WeeklyOutcome = "kept" | "missed" | "partial";
+
+/** A forward behavioral commitment, authored when a week opens. */
 export interface WeeklyCommitment {
   /** Week start date. */
   weekOf: ISODate;
   /** The ONE behavioral change committed to for the week. */
   commitment: string;
-  outcome?: "kept" | "missed" | "partial";
+}
+
+/**
+ * The append-once verdict on a completed week, authored when the week is closed.
+ * Kept separate from WeeklyCommitment so the grade can't be silently re-edited
+ * (retroactive self-flattery). See DECISIONS.md ADR-0012.
+ */
+export interface WeeklyReview {
+  /** The week being graded. */
+  weekOf: ISODate;
+  outcome: WeeklyOutcome;
+  /** The "why" behind the grade — the diagnosis is the point. */
   outcomeNote?: string;
+  /** When the review was recorded. */
+  reviewedOn: ISODate;
 }
 
 export interface Preferences {

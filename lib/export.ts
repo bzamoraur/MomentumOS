@@ -40,9 +40,15 @@ export function toMarkdown(state: MomentumState): string {
 
   if (state.commitments.length) {
     out.push("## Weekly commitments", "");
-    for (const c of state.commitments) {
-      const outcome = c.outcome ? ` — ${c.outcome}` : "";
-      out.push(`- ${c.weekOf}: ${c.commitment}${outcome}`);
+    for (const c of state.commitments) out.push(`- ${c.weekOf}: ${c.commitment}`);
+    out.push("");
+  }
+
+  if (state.reviews.length) {
+    out.push("## Weekly reviews", "");
+    for (const r of state.reviews) {
+      const why = r.outcomeNote ? ` — ${r.outcomeNote}` : "";
+      out.push(`- ${r.weekOf}: ${r.outcome}${why}`);
     }
     out.push("");
   }

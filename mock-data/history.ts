@@ -12,7 +12,7 @@
  * Sorted ASCENDING by date (oldest first), as the signals engine expects.
  */
 
-import type { DailyEntry, WeeklyCommitment } from "@/lib/types";
+import type { DailyEntry, WeeklyCommitment, WeeklyReview } from "@/lib/types";
 
 export const mockHistory: DailyEntry[] = [
   // ---- previous week (context only; outside the 7-day signal windows) ----
@@ -182,10 +182,16 @@ export const mockHistory: DailyEntry[] = [
 /** Today = the most recent entry (the deck plans the current day). */
 export const today: DailyEntry = mockHistory[mockHistory.length - 1];
 
-/** Last week's single behavioral commitment — surfaced (carried forward) in the weekly review (later slice). */
+/** Last week's single behavioral commitment — carried forward in the weekly review (PR3b). */
 export const lastWeekCommitment: WeeklyCommitment = {
   weekOf: "2026-06-15",
   commitment: "Protect a 90-minute deep-work block before 11am, no Slack.",
+};
+
+/** The append-once verdict on that week (authored when the week was closed). */
+export const lastWeekReview: WeeklyReview = {
+  weekOf: "2026-06-15",
   outcome: "partial",
   outcomeNote: "Held it 3 of 5 weekdays; collapsed on steerco days.",
+  reviewedOn: "2026-06-22",
 };

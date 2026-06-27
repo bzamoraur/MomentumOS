@@ -10,9 +10,15 @@
  * binding is a thin, non-throwing wrapper.
  */
 
-import type { DailyEntry, WeeklyCommitment, Preferences } from "./types";
+import type {
+  DailyEntry,
+  WeeklyCommitment,
+  WeeklyReview,
+  Preferences,
+} from "./types";
+import { daysBetween } from "./date";
 
-export const SCHEMA_VERSION = 1;
+export const SCHEMA_VERSION = 2;
 export const STORAGE_KEY = "momentum-os:v1";
 export const BACKUP_KEY = "momentum-os:v1:corrupt-backup";
 
@@ -31,6 +37,7 @@ export interface MomentumState {
   /** Keyed by ISODate ('YYYY-MM-DD'). */
   entries: Record<string, DailyEntry>;
   commitments: WeeklyCommitment[];
+  reviews: WeeklyReview[];
   preferences: Preferences;
 }
 
@@ -41,6 +48,7 @@ export function emptyState(
     schemaVersion: SCHEMA_VERSION,
     entries: {},
     commitments: [],
+    reviews: [],
     preferences,
   };
 }
@@ -69,20 +77,43 @@ export function deserialize(raw: string | null | undefined): LoadResult {
   } catch {
     return { status: "corrupt", state: emptyState(), raw };
   }
-  if (!isValidState(parsed)) {
-    return { status: "corrupt", state: emptyState(), raw };
+  if (isV2(parsed)) {
+    return { status: "ok", state: parsed };
   }
-  return { status: "ok", state: parsed };
+  // Migrate a valid v1 blob forward so existing users are never dropped into
+  // recovery by a schema bump (ADR-0012).
+  if (isV1(parsed)) {
+    return { status: "ok", state: migrateV1toV2(parsed) };
+  }
+  return { status: "corrupt", state: emptyState(), raw };
 }
 
-function isValidState(v: unknown): v is MomentumState {
-  if (typeof v !== "object" || v === null) return false;
-  const s = v as Record<string, unknown>;
-  if (s.schemaVersion !== SCHEMA_VERSION) return false; // missing/older -> recover
+/** Shared shape checks common to every version. */
+function hasCoreShape(s: Record<string, unknown>): boolean {
   if (typeof s.entries !== "object" || s.entries === null) return false;
   if (!Array.isArray(s.commitments)) return false;
   if (typeof s.preferences !== "object" || s.preferences === null) return false;
   return true;
+}
+
+function isV2(v: unknown): v is MomentumState {
+  if (typeof v !== "object" || v === null) return false;
+  const s = v as Record<string, unknown>;
+  return s.schemaVersion === 2 && hasCoreShape(s) && Array.isArray(s.reviews);
+}
+
+/** v1 had no `reviews` array and no current entity changes otherwise. */
+function isV1(v: unknown): boolean {
+  if (typeof v !== "object" || v === null) return false;
+  const s = v as Record<string, unknown>;
+  return s.schemaVersion === 1 && hasCoreShape(s);
+}
+
+function migrateV1toV2(v: unknown): MomentumState {
+  const s = v as MomentumState;
+  // v1 had no UI path that persisted a commitment (commitments were always [] in
+  // a real store), so there is no v1 `outcome`/`outcomeNote` to lift into a review.
+  return { ...s, schemaVersion: 2, reviews: [] };
 }
 
 /**
@@ -109,6 +140,43 @@ export function entriesAscending(state: MomentumState): DailyEntry[] {
   return Object.values(state.entries).sort((a, b) =>
     a.date < b.date ? -1 : a.date > b.date ? 1 : 0,
   );
+}
+
+/** Set (or replace) the forward commitment for a week. Forward-looking, so editable. */
+export function setCommitment(
+  state: MomentumState,
+  commitment: WeeklyCommitment,
+): MomentumState {
+  const others = state.commitments.filter((c) => c.weekOf !== commitment.weekOf);
+  return {
+    ...state,
+    commitments: [...others, commitment].sort((a, b) =>
+      a.weekOf < b.weekOf ? -1 : 1,
+    ),
+  };
+}
+
+/**
+ * Close a week with an append-once review. Refuses to grade a week that has not
+ * fully elapsed, and refuses a SECOND review for a week — the verdict on past
+ * behavior is immutable, not a UI convention (ADR-0012).
+ */
+export function closeWeek(
+  state: MomentumState,
+  review: WeeklyReview,
+  today: string,
+): MomentumState {
+  if (daysBetween(review.weekOf, today) < 7) {
+    throw new Error(
+      `Refusing to close week ${review.weekOf}: it has not fully elapsed as of ${today}.`,
+    );
+  }
+  if (state.reviews.some((r) => r.weekOf === review.weekOf)) {
+    throw new Error(
+      `Refusing to re-grade week ${review.weekOf}: a review already exists (immutable).`,
+    );
+  }
+  return { ...state, reviews: [...state.reviews, review] };
 }
 
 export interface MomentumRepository {

@@ -18,7 +18,17 @@ const WINDOW = 7;
  * Takes the real entries (empty-first); the copy stays honest when the record is
  * still thin.
  */
-export function SelfRecordStrip({ entries }: { entries: DailyEntry[] }) {
+export function SelfRecordStrip({
+  entries,
+  caption = `last ${WINDOW} days`,
+  note,
+}: {
+  entries: DailyEntry[];
+  /** Right-aligned scope label; override when the strip is scoped to one week. */
+  caption?: string;
+  /** Override the descriptive line (e.g. to name the week being closed). */
+  note?: string;
+}) {
   const ks = keystoneProtection(entries, WINDOW);
   const slip = topPrioritySlip(entries);
   const naming = tradeOffNamingRate(entries, WINDOW);
@@ -61,14 +71,13 @@ export function SelfRecordStrip({ entries }: { entries: DailyEntry[] }) {
       <CardHeader>
         <CardTitle className="flex items-center justify-between">
           <span>Your own record</span>
-          <span className="text-xs font-normal text-muted-foreground">
-            last {WINDOW} days
-          </span>
+          <span className="text-xs font-normal text-muted-foreground">{caption}</span>
         </CardTitle>
         <p className="text-xs leading-relaxed text-muted-foreground">
-          {thin
-            ? "Your record grows as you log days. These facts get sharper with history — and there's no score to optimize."
-            : "Facts from your own entries. No score, nothing to optimize — you decide what they mean."}
+          {note ??
+            (thin
+              ? "Your record grows as you log days. These facts get sharper with history — and there's no score to optimize."
+              : "Facts from your own entries. No score, nothing to optimize — you decide what they mean.")}
         </p>
       </CardHeader>
       <CardContent>

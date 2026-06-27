@@ -98,6 +98,8 @@ export function WeeklyReview() {
   const entries = entriesAscending(state);
   const thisWeek = startOfWeek(today, weekStartsOn);
   const closeable = weekToClose(state.commitments, state.reviews, today);
+  // "Carry forward" anchors to the calendar-prior week (not necessarily the week
+  // being closed) — literally "keep last week's commitment" (ADR-0012).
   const priorCommitment =
     findCommitment(state.commitments, previousWeekStart(thisWeek))?.commitment ?? null;
 
@@ -186,7 +188,11 @@ export function WeeklyReview() {
             <span className="px-1 text-xs text-muted-foreground">
               What that week actually showed (facts, not a grade):
             </span>
-            <SelfRecordStrip entries={entriesForWeek(entries, closeable)} />
+            <SelfRecordStrip
+              entries={entriesForWeek(entries, closeable)}
+              caption="that week"
+              note="Facts from the week you're closing — they don't grade your commitment; you do."
+            />
           </div>
         </>
       ) : (

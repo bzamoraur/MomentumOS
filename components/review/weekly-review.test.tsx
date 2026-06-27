@@ -68,4 +68,24 @@ describe("WeeklyReview", () => {
       expect(saved.commitments.some((c: { commitment: string }) => c.commitment === "Ship PR3b")).toBe(true);
     });
   });
+
+  it("removes the commitment row when the input is cleared", async () => {
+    const user = userEvent.setup();
+    render(<WeeklyReview />);
+
+    const input = await screen.findByPlaceholderText("One behavioral change (optional)");
+    await user.type(input, "Temp commitment");
+    await waitFor(() => {
+      expect(
+        readState().commitments.some(
+          (c: { commitment: string }) => c.commitment === "Temp commitment",
+        ),
+      ).toBe(true);
+    });
+
+    await user.clear(input);
+    await waitFor(() => {
+      expect(readState().commitments).toHaveLength(0);
+    });
+  });
 });

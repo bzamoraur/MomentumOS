@@ -7,6 +7,8 @@ import {
   deserialize,
   updateEntry,
   entriesAscending,
+  setCommitment,
+  closeWeek,
   createInMemoryRepository,
   createLocalStorageRepository,
   type MomentumState,
@@ -145,6 +147,70 @@ describe("emptyState", () => {
     expect(s.schemaVersion).toBe(SCHEMA_VERSION);
     expect(Object.keys(s.entries)).toHaveLength(0);
     expect(s.commitments).toHaveLength(0);
+    expect(s.reviews).toHaveLength(0);
     expect(s.preferences.maxPriorities).toBe(3);
+  });
+});
+
+describe("schema migration v1 -> v2", () => {
+  it("migrates a valid v1 blob to v2 instead of dropping into recovery", () => {
+    const v1 = JSON.stringify({
+      schemaVersion: 1,
+      entries: { "2026-06-26": entry("2026-06-26", { keystone: "Carry over" }) },
+      commitments: [{ weekOf: "2026-06-22", commitment: "Protect deep work" }],
+      preferences: { maxPriorities: 3, weekStartsOn: "monday", leveragePrompts: [] },
+    });
+    const r = deserialize(v1);
+    expect(r.status).toBe("ok");
+    expect(r.state.schemaVersion).toBe(2);
+    expect(r.state.reviews).toEqual([]); // added by migration
+    expect(r.state.entries["2026-06-26"].keystone).toBe("Carry over"); // preserved
+  });
+});
+
+describe("setCommitment", () => {
+  it("adds and then replaces the commitment for a week", () => {
+    let s = emptyState();
+    s = setCommitment(s, { weekOf: "2026-06-22", commitment: "First" });
+    s = setCommitment(s, { weekOf: "2026-06-22", commitment: "Revised" });
+    expect(s.commitments).toHaveLength(1);
+    expect(s.commitments[0].commitment).toBe("Revised");
+  });
+});
+
+describe("closeWeek (append-once verdict)", () => {
+  it("appends a review for a fully-elapsed week", () => {
+    const s = closeWeek(
+      emptyState(),
+      { weekOf: "2026-06-15", outcome: "partial", reviewedOn: "2026-06-22" },
+      "2026-06-22",
+    );
+    expect(s.reviews).toHaveLength(1);
+    expect(s.reviews[0].outcome).toBe("partial");
+  });
+
+  it("refuses to grade a week that has not fully elapsed", () => {
+    expect(() =>
+      closeWeek(
+        emptyState(),
+        { weekOf: "2026-06-22", outcome: "kept", reviewedOn: "2026-06-26" },
+        "2026-06-26",
+      ),
+    ).toThrow(/not fully elapsed/);
+  });
+
+  it("refuses a second review for the same week (immutable verdict)", () => {
+    const once = closeWeek(
+      emptyState(),
+      { weekOf: "2026-06-15", outcome: "missed", reviewedOn: "2026-06-22" },
+      "2026-06-22",
+    );
+    expect(() =>
+      closeWeek(
+        once,
+        { weekOf: "2026-06-15", outcome: "kept", reviewedOn: "2026-06-23" },
+        "2026-06-23",
+      ),
+    ).toThrow(/re-grade/);
   });
 });

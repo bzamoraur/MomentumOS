@@ -72,10 +72,12 @@ leverage instead of reacting.*
 *I want last week's commitment shown back with a kept/missed verdict, so the review changes
 next week instead of generating resolutions I forget.*
 - AC1: The weekly view opens with last week's single commitment and a kept/missed/partial
-  control + reason.
-- AC2: The review ends by producing exactly one new commitment that becomes next week's
-  carried-forward item.
-- AC3: Reflection prompts are neutral-but-specific; no accusatory copy.
+  control + reason. The verdict is append-once (immutable; see ADR-0012).
+- AC2: The review may produce **at most one** new commitment — keep-the-same / set-new /
+  none, honestly labeled. Never a list, never a required field (a mandatory weekly
+  commitment manufactures reflection theater once real insights run out).
+- AC3: Reflection prompts are neutral-but-specific; no accusatory copy. The grade is
+  self-report; the signals are an independent check and must not be implied to substantiate it.
 
 **US-4 — Survive the worst day.**
 *I want a sub-30s "minimum viable day" (keystone + did-I-protect-it) and a non-scolding

@@ -28,6 +28,7 @@ Each item is deferred *on principle*, not for lack of time. The deferring critiq
 - **Notifications / push.** Deferred. We do not have push and will not pretend to. *(Designed retrieval cue instead of fake notifications; brief §4.)* See Open question below.
 - **Energy/training as a required field, planning gate, or recommendation.** Deferred — permanently as advice. Energy stays optional one-tap context the user interprets. *(HARD boundary: tracking only, no medical/training/nutrition/sleep advice; brief §3, §6 loop 3, §14.)*
 - **Spaced-repetition / structured skill tree.** Deferred. Evidence supports spacing/retrieval (brief §11), but it is a separate product, not this instrument. *(Every feature earns its place; brief §6 loop 4.)*
+- **Separate `rootCause` field in the weekly review.** Deferred (PR3). `outcomeNote` ("why") already captures the diagnosis; a second prose field bloats a ~15-min ritual. *(Constraint over capture; product-critic on PR3, ADR-0012.)* Add back only if the pilot shows users want to separate "why the week went that way" from the verdict.
 
 ## 3. Open questions
 

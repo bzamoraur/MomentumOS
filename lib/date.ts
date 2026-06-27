@@ -30,6 +30,25 @@ function toUTC(iso: string): Date {
   return new Date(Date.UTC(y, m - 1, d));
 }
 
+function fmtUTC(d: Date): string {
+  const y = d.getUTCFullYear();
+  const m = String(d.getUTCMonth() + 1).padStart(2, "0");
+  const day = String(d.getUTCDate()).padStart(2, "0");
+  return `${y}-${m}-${day}`;
+}
+
+/** Calendar-date arithmetic in UTC (date-only; immune to DST/timezone drift). */
+export function addDays(iso: string, n: number): string {
+  const d = toUTC(iso);
+  d.setUTCDate(d.getUTCDate() + n);
+  return fmtUTC(d);
+}
+
+/** Day of week for a date-only ISO string: 0 = Sunday … 6 = Saturday. */
+export function weekdayUTC(iso: string): number {
+  return toUTC(iso).getUTCDay();
+}
+
 /** "2026-06-26" -> "Friday, 26 June 2026". */
 export function formatLongDate(iso: string): string {
   const dt = toUTC(iso);

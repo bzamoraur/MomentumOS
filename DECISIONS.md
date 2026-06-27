@@ -114,3 +114,36 @@ preferences. The 3-priority cap is shown in the UI as "a preference, not a law".
 **Status.** Accepted; preferences UI lands in PR4.
 **Consequences.** This is what makes the "honesty" positioning real rather than asserted.
 **Source.** Critique panel (feasibility lens).
+
+## ADR-0011 — Persistence & state model (PR2): empty-first, fail-safe, invisible
+**Context.** PR2 makes the deck interactive and persistent (localStorage). The
+`product-critic` subagent flagged three thesis-level risks in the naive design.
+**Decision.**
+- **Empty-first store.** Never write seed/mock data into the real ledger — a
+  confrontation instrument seeded with fictional days is a lie (contradicts ADR-0004).
+  The real store starts empty; the seeded sample moves to a clearly-labeled,
+  **non-persisted** `/preview` route.
+- **Fail-safe recovery.** `deserialize` returns a typed `LoadResult`
+  (`ok | empty | corrupt`). On corrupt/unparseable data the app enters a **read-only
+  recovery state**: it archives the raw blob **write-once** to a backup key, offers
+  export, and **never auto-wipes**. Autosave is disabled until a clean load or an
+  explicit user "start fresh". `save()` is non-throwing (quota/private-mode safe) and
+  surfaces a "not saving" state instead of throwing into React.
+- **Past-day immutability invariant.** The repository rejects writes addressed to a date
+  earlier than "today". Today is editable; the historical record is structurally
+  un-editable — the claim made real, ahead of multi-day navigation.
+- **Invisible persistence.** No "saved ✓" toast, no streak of green checks — that is the
+  dopamine-dashboard the product rejects (principles 4, 7). The record confronts; it does
+  not congratulate.
+- **`toISODate(d)` uses LOCAL calendar components** (not UTC `toISOString`) so "today"
+  is correct in the user's timezone; tested near midnight and across a DST boundary.
+- **Missing `schemaVersion` is treated as corrupt-recover**, not assumed v1.
+**Status.** Accepted (PR2).
+**Consequences.** PR2 is larger than a single concern; the persistence layer and the
+interactive layer are both tested (lib unit tests + jsdom interaction tests added in this
+PR — a small, deliberately-flagged test-harness addition). Weekly review, preferences UI,
+multi-day navigation, and onboarding remain deferred (PR3+).
+**Accepted limitation (Open question):** "today" is read once on mount; a session left
+open across midnight keeps writing to the prior day. Acceptable for a single-session daily
+ritual in the MVP; revisit when multi-day navigation lands.
+**Source.** `product-critic` subagent on the PR2 state model; `code-reviewer` on the diff.

@@ -1,3 +1,4 @@
+import type { DailyEntry } from "@/lib/types";
 import {
   keystoneProtection,
   topPrioritySlip,
@@ -5,7 +6,6 @@ import {
   compoundingNeglectDays,
   plannedVsCompleted,
 } from "@/lib/signals";
-import { mockHistory } from "@/mock-data/history";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
 const WINDOW = 7;
@@ -14,13 +14,17 @@ const WINDOW = 7;
  * The differentiator: confrontation by your own data. Plain facts derived from
  * the user's own history — deliberately NOT aggregated into a score, because a
  * single number invites gaming (Goodhart/surrogation). See DECISIONS.md ADR-0002.
+ *
+ * Takes the real entries (empty-first); the copy stays honest when the record is
+ * still thin.
  */
-export function SelfRecordStrip() {
-  const ks = keystoneProtection(mockHistory, WINDOW);
-  const slip = topPrioritySlip(mockHistory);
-  const naming = tradeOffNamingRate(mockHistory, WINDOW);
-  const neglect = compoundingNeglectDays(mockHistory);
-  const pvc = plannedVsCompleted(mockHistory, WINDOW);
+export function SelfRecordStrip({ entries }: { entries: DailyEntry[] }) {
+  const ks = keystoneProtection(entries, WINDOW);
+  const slip = topPrioritySlip(entries);
+  const naming = tradeOffNamingRate(entries, WINDOW);
+  const neglect = compoundingNeglectDays(entries);
+  const pvc = plannedVsCompleted(entries, WINDOW);
+  const thin = entries.length <= 1;
 
   const facts: { label: string; value: string }[] = [
     {
@@ -62,8 +66,9 @@ export function SelfRecordStrip() {
           </span>
         </CardTitle>
         <p className="text-xs leading-relaxed text-muted-foreground">
-          Facts from your own entries. No score, nothing to optimize — you decide
-          what they mean.
+          {thin
+            ? "Your record grows as you log days. These facts get sharper with history — and there's no score to optimize."
+            : "Facts from your own entries. No score, nothing to optimize — you decide what they mean."}
         </p>
       </CardHeader>
       <CardContent>

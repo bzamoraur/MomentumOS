@@ -1,12 +1,12 @@
-import { today } from "@/mock-data/history";
+import type { DailyEntry } from "@/lib/types";
 import { LEVERAGE_LABELS } from "@/lib/types";
 import { daysBetween } from "@/lib/date";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 
-/** Read-only render of today's plan (slice 1). Interactivity arrives in PR2. */
-export function DailyDeck() {
-  const e = today;
+/** Read-only render of a day's plan. Used by the `/preview` sample. */
+export function DailyDeck({ entry }: { entry: DailyEntry }) {
+  const e = entry;
 
   return (
     <div className="flex flex-col gap-4">

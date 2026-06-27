@@ -147,3 +147,35 @@ multi-day navigation, and onboarding remain deferred (PR3+).
 open across midnight keeps writing to the prior day. Acceptable for a single-session daily
 ritual in the MVP; revisit when multi-day navigation lands.
 **Source.** `product-critic` subagent on the PR2 state model; `code-reviewer` on the diff.
+
+## ADR-0012 — Weekly Confrontation model: separate WeeklyReview, migrate, anchor, optional
+**Context.** PR3 builds the carry-forward loop (ADR-0004). The `product-critic` flagged
+four structural risks in the naive design.
+**Decision.**
+- **Separate `WeeklyReview` entity (append-once).** A `WeeklyCommitment { weekOf,
+  commitment }` is authored when a week opens; the verdict (`outcome`, `outcomeNote`)
+  is a distinct `WeeklyReview { weekOf, outcome, outcomeNote?, reviewedOn }` authored
+  when the week is closed. Conflating them put the differentiating feature on a mutable
+  row that could be silently re-graded (retroactive self-flattery) — the opposite of the
+  product. `closeWeek` **refuses a second review** for a week (immutability made
+  structural) and refuses to close a week that hasn't fully elapsed.
+- **Schema migration 1→2 (not a naive extension).** `deserialize` migrates a valid v1
+  blob to v2 (adds `reviews: []`) so existing PR2 users are NOT dropped into
+  corrupt-recovery. A missing/unknown version is still corrupt-recover.
+- **Anchor to the oldest *unreviewed elapsed* week**, not `today`'s week. A week becomes
+  reviewable once `today ≥ weekOf + 7`. Ritual: Monday morning (close last week, set this
+  week). Older un-reviewed weeks simply never get an outcome — honest, not a guilt backlog
+  (graceful re-entry, US-4). `today` is re-derived at submit to avoid the midnight edge.
+- **The new commitment is OPTIONAL** — keep-the-same / set-new / none, honestly labeled.
+  A *mandatory* weekly commitment manufactures pseudo-insight once real ones run out
+  (reflection theater — the panel's original objection). PRD US-3 AC2 reworded:
+  "at most one, never a list, never required."
+- **Grade close is an explicit action, not silent autosave.** The once-only verdict gets
+  a deliberate "Close the week" commit; the forward commitment can autosave. (Refines
+  ADR-0011's invisible-persistence default for the one irreversible write.)
+- **`rootCause` deferred** — `outcomeNote` ("why") already captures the diagnosis; a second
+  prose field bloats the ritual. To BACKLOG.
+- **Split:** PR3a = `lib/week.ts` + the `WeeklyReview` model + migration + `setCommitment`/
+  `closeWeek` (pure, TDD, no UI). PR3b = the `/review` route.
+**Status.** Accepted; PR3a in this PR, PR3b next.
+**Source.** `product-critic` subagent on the PR3 weekly-review model.

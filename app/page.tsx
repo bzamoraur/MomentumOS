@@ -1,8 +1,5 @@
-import { today } from "@/mock-data/history";
-import { formatLongDate } from "@/lib/date";
-import { Badge } from "@/components/ui/badge";
-import { DailyDeck } from "@/components/deck/daily-deck";
-import { SelfRecordStrip } from "@/components/deck/self-record-strip";
+import Link from "next/link";
+import { InteractiveDeck } from "@/components/deck/interactive-deck";
 
 export default function Page() {
   return (
@@ -12,25 +9,26 @@ export default function Page() {
           <span className="text-xs font-semibold uppercase tracking-[0.2em] text-muted-foreground">
             Momentum OS
           </span>
-          <Badge variant="outline">Seeded demo data</Badge>
+          <Link
+            href="/preview"
+            className="text-xs text-muted-foreground underline underline-offset-4 hover:text-foreground"
+          >
+            See a sample week
+          </Link>
         </div>
-        <h1 className="text-2xl font-semibold tracking-tight">
-          {formatLongDate(today.date)}
-        </h1>
+        <h1 className="text-2xl font-semibold tracking-tight">Today</h1>
         <p className="text-sm leading-relaxed text-muted-foreground">
           Decide the day, then face your own record. One keystone, one explicit
-          trade-off — no score to game.
+          trade-off — no score to game. Your entries stay on this device.
         </p>
       </header>
 
-      <DailyDeck />
-      <SelfRecordStrip />
+      <InteractiveDeck />
 
       <footer className="mt-2 border-t border-border pt-4 text-xs leading-relaxed text-muted-foreground">
-        Slice 1 of the MVP — a read-only Daily Command Deck rendered from seeded
-        data. Interactivity, local persistence, export, and the Weekly
-        Confrontation arrive in later PRs. See{" "}
-        <span className="font-mono text-foreground">PRD.md</span>.
+        Your ledger starts empty and lives only in this browser — export it any
+        time. The Weekly Confrontation and commitment carry-forward arrive next.
+        See <span className="font-mono text-foreground">PRD.md</span>.
       </footer>
     </main>
   );

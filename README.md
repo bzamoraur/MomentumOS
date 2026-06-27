@@ -50,6 +50,18 @@ pnpm run check    # typecheck + test + build (the gate)
 `pnpm run check` is the single command that must stay green. Individual scripts:
 `pnpm run typecheck`, `pnpm run test`, `pnpm run build`, `pnpm run lint`.
 
+## Run it on your phone
+
+No backend, no env vars — deploy from the repo in ~2 minutes:
+
+1. At **vercel.com**, sign in with GitHub → **Add New… → Project** → import this repo.
+2. Leave defaults (Vercel auto-detects Next.js + pnpm) and **Deploy**.
+3. Open the resulting URL on your phone → **Share → Add to Home Screen**.
+
+It is installable as a PWA (standalone display, app icon, dark theme color), so the
+home-screen launch is the intended daily cue — we have no push by design. Your entries
+live only in that browser's `localStorage`; use **Export** for a portable copy.
+
 ## Repo map
 
 | Path           | What lives there                                                      |

@@ -179,3 +179,20 @@ four structural risks in the naive design.
   `closeWeek` (pure, TDD, no UI). PR3b = the `/review` route.
 **Status.** Accepted; PR3a in this PR, PR3b next.
 **Source.** `product-critic` subagent on the PR3 weekly-review model.
+
+## ADR-0013 — Installable PWA as the designed retrieval cue (PR5a)
+**Context.** Adherence is the #1 risk (PROJECT_CHARTER): a tool whose premise is that
+intention is unreliable must itself be easy to return to. We have no push and won't fake
+it (BACKLOG); the committed substitute is "add to home screen + habit anchor" (ADR-0006).
+**Decision.** Make the app an installable PWA: a web manifest (`app/manifest.ts`,
+`display: standalone`, dark `theme_color`), an SVG mark (`public/icon.svg`), an iOS
+home-screen icon, and `appleWebApp` metadata. Icons are generated with **`next/og`** at
+build time (`app/apple-icon.tsx`) so **no binary image assets** are checked in — keeping
+the repo text-only and reviewable. A README "Run it on your phone" section documents the
+Vercel deploy + add-to-home-screen flow.
+**Status.** Accepted (PR5a). The in-app onboarding nudge and the minimum-viable-day /
+graceful-re-entry path remain PR5b.
+**Consequences.** The home-screen launch becomes the daily cue. No new domain logic, so
+the gate is build + lint (no unit tests to add). Local-first and no-tracking posture is
+unchanged (SECURITY_AND_PRIVACY).
+**Source.** Owner confirmed the app runs well on device; adherence is the binding constraint.
